@@ -1,2 +1,3 @@
 org.visallo.core.model.longRunningProcess.FindPathLongRunningProcessWorker
 org.visallo.core.ping.PingLongRunningProcess
+org.visallo.core.ingest.longRunningProcess.S3ParquetFileImportLongRunningProcess
