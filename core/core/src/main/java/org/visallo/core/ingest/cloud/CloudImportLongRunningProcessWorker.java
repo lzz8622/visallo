@@ -2,9 +2,7 @@ package org.visallo.core.ingest.cloud;
 
 import com.google.common.io.Files;
 import com.google.inject.Inject;
-import com.sun.xml.internal.ws.api.pipe.FiberContextSwitchInterceptor;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.vertexium.Authorizations;
 import org.vertexium.Graph;
@@ -23,7 +21,6 @@ import org.visallo.core.util.ClientApiConverter;
 import org.visallo.web.clientapi.model.ClientApiImportProperty;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
