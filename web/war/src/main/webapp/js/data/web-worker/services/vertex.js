@@ -198,6 +198,12 @@ define([
             })).tap(storeHelper.updateElement);
         },
 
+        cloudImport: function(cloudDestination, cloudConfiguration) {
+            return ajax('POST', '/vertex/cloudImport', {
+                cloudDestination, cloudConfiguration: JSON.stringify(cloudConfiguration)
+            })
+        },
+
         importFiles: function(files, conceptValue, visibilitySource) {
             var formData = new FormData();
 

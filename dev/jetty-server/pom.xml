@@ -76,6 +76,11 @@
             <artifactId>visallo-web-product-map</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.visallo</groupId>
+            <artifactId>visallo-ingest-cloud-s3</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Graph Property Workers -->
         <dependency>

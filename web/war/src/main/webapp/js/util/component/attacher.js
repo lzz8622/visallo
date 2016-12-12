@@ -30,8 +30,6 @@ define([
         return this;
     };
 
-    Attacher.prototype._mapLegacyBehaviors = function() { };
-
     Attacher.prototype._verifyState = function() {
         if (!_.isElement(this._node)) {
             throw new Error('Node is not an Element')

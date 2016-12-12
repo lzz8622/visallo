@@ -68,9 +68,9 @@
         <visallo.closure.compiler.version>1.0.0</visallo.closure.compiler.version>
         <hadoop.version>2.6.0-cdh5.9.0</hadoop.version>
         <twill.version>0.4.0-incubating</twill.version>
-        <httpcomponents.httpclient.version>4.4.1</httpcomponents.httpclient.version>
+        <httpcomponents.httpclient.version>4.5.2</httpcomponents.httpclient.version>
         <inflector.version>0.7.0</inflector.version>
-        <jackson.version>2.4.3</jackson.version>
+        <jackson.version>2.6.6</jackson.version>
         <jackson-mapper-asl.version>1.9.13</jackson-mapper-asl.version>
         <jetty.version>9.2.9.v20150224</jetty.version>
         <jetty.javaee.version>3.0.0.v201112011016</jetty.javaee.version>
