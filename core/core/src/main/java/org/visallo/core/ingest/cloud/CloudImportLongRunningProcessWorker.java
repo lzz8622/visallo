@@ -1,5 +1,8 @@
 package org.visallo.core.ingest.cloud;
 
+import com.google.common.io.ByteProcessor;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
@@ -20,8 +23,7 @@ import org.visallo.core.user.User;
 import org.visallo.core.util.ClientApiConverter;
 import org.visallo.web.clientapi.model.ClientApiImportProperty;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Collection;
 
 public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorker {
@@ -63,7 +65,7 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
             longRunningProcessQueueItem.put("error", "No cloud destination configured for :" + item.getDestination());
         } else {
             try {
-                download(destination, item);
+                download(destination, item, longRunningProcessQueueItem);
             } catch (Exception e) {
                 throw new VisalloException("Unable to download from cloud destination", e);
             }
@@ -80,7 +82,8 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
         return null;
     }
 
-    private void download(CloudDestination destination, CloudImportLongRunningProcessQueueItem item) throws Exception {
+    private void download(CloudDestination destination, CloudImportLongRunningProcessQueueItem item, JSONObject itemJson) throws Exception {
+        String id = itemJson.getString("id");
         Authorizations authorizations = graph.createAuthorizations(item.getAuthorizations());
         String visibilitySource = "";
         User user = userRepository.findById(item.getUserId());
@@ -93,35 +96,88 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
 
         File tempDir = Files.createTempDir();
         try {
-            for (CloudDestinationItem cloudDestinationItem : destination.getItems(new JSONObject(item.getConfiguration()))) {
+            Collection<CloudDestinationItem> items = destination.getItems(new JSONObject(item.getConfiguration()));
+            Long allItemsSize = 0L;
+            for (CloudDestinationItem cloudDestinationItem : items) {
+                Long size = cloudDestinationItem.getSize();
+                if (size != null) {
+                    allItemsSize += size;
+                }
+            }
+
+
+            long noSizeProgress = 0;
+            long cumulativeSize = 0;
+            for (CloudDestinationItem cloudDestinationItem : items) {
                 String fileName = cloudDestinationItem.getName();
-                InputStream inputStream = cloudDestinationItem.getInputStream();
-
                 if (fileName == null) throw new VisalloException("Cloud destination item name must not be null");
-                if (inputStream == null) throw new VisalloException("Cloud destination input stream must not be null");
-
                 File file = new File(tempDir, cloudDestinationItem.getName());
 
-                // TODO: switch to method with progress
-                // https://commons.apache.org/proper/commons-net/apidocs/org/apache/commons/net/io/Util.html
-                FileUtils.copyInputStreamToFile(inputStream, file);
+                try (InputStream inputStream = cloudDestinationItem.getInputStream()) {
+                    if (inputStream == null) {
+                        throw new VisalloException("Cloud destination input stream must not be null");
+                    }
 
-                fileImport.importFile(
-                        file,
-                        queueDefaults,
-                        conceptId,
-                        properties,
-                        visibilitySource,
-                        workspace,
-                        findExistingByFileHash,
-                        priority,
-                        user,
-                        authorizations
-                );
+                    noSizeProgress += (double) 1 / items.size();
+                    if (downloadFile(id, inputStream, file, cumulativeSize, allItemsSize, noSizeProgress)) {
+                        //FileUtils.copyInputStreamToFile(inputStream, file);
+                        fileImport.importFile(
+                                file,
+                                queueDefaults,
+                                conceptId,
+                                properties,
+                                visibilitySource,
+                                workspace,
+                                findExistingByFileHash,
+                                priority,
+                                user,
+                                authorizations
+                        );
+                    }
+                    if (allItemsSize > 0) {
+                        cumulativeSize += cloudDestinationItem.getSize();
+                    }
+                }
             }
         } finally {
+            longRunningProcessRepository.reportProgress(id, 1.0, "Finishing");
             FileUtils.deleteDirectory(tempDir);
         }
+    }
+
+    private boolean downloadFile(String longRunningProcessId, InputStream inputStream, File file, Long cumulativeSize, Long allItemSize, double noSizeProgress) throws Exception {
+        final OutputStream out = new FileOutputStream(file);
+        boolean success = false;
+        try {
+            ByteStreams.readBytes(inputStream,
+                    new ByteProcessor<Object>() {
+                        private long progress = cumulativeSize;
+                        private long flushProgress = 0;
+                        public boolean processBytes(byte[] buffer, int offset, int length) throws IOException {
+                            out.write(buffer, offset, length);
+                            if (allItemSize > 0) {
+                                progress += length;
+                                flushProgress += length;
+                                if (((double)flushProgress / allItemSize) > 0.01) {
+                                    longRunningProcessRepository.reportProgress(longRunningProcessId, (double) progress / allItemSize, String.format("Downloading %s", file.getName()));
+                                    flushProgress = 0;
+                                }
+                            }
+                            return true;
+                        }
+                        public Void getResult() {
+                            return null;
+                        }
+                    });
+            success = true;
+        } finally {
+            if (allItemSize.equals(0)) {
+                longRunningProcessRepository.reportProgress(longRunningProcessId, noSizeProgress, "Downloading");
+            }
+            Closeables.close(out, !success);
+        }
+
+        return success;
     }
 
 }

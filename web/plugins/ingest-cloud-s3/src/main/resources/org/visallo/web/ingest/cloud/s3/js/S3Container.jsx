@@ -23,11 +23,12 @@ define([
     const AmazonS3ConfigurationContainer = redux.connect(
 
         (state, props) => {
-            return { ...props, ...state['ingest-cloud-s3'] }
+            const authenticationId = state.configuration.properties['org.visallo.ingest.cloud.s3.authentication'];
+            return { ...props, ...state['ingest-cloud-s3'], authenticationId }
         },
 
         (dispatch, props) => ({
-            onChangeCredentials(credentials) { dispatch(s3Actions.credentials(credentials)) },
+            onConnect(credentials) { dispatch(s3Actions.connect(credentials)) },
             onOpenDirectory(name) { dispatch(s3Actions.openDirectory(name))},
             onSelectItem(name) { dispatch(s3Actions.selectItem(name))}
         })

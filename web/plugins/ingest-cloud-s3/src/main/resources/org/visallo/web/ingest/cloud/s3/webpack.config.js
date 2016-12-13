@@ -1,6 +1,8 @@
 var path = require('path');
 var webpack = require('webpack');
 var VisalloAmdExternals = [
+    'components/Attacher',
+    'components/RegistryInjectorHOC',
     'configuration/plugins/registry',
     'data/web-worker/store/actions',
     'data/web-worker/util/ajax',
@@ -12,6 +14,7 @@ var VisalloAmdExternals = [
 module.exports = {
   entry: {
     Config: './js/S3Container.jsx',
+    BasicAuth: './js/auth/BasicAuth.jsx',
     'actions-impl': './js/worker/actions-impl.js',
     'plugin-worker': './js/worker/plugin.js'
   },
@@ -63,11 +66,11 @@ module.exports = {
   },
   devtool: 'source-map',
   plugins: [
-    //new webpack.optimize.UglifyJsPlugin({
-        //mangle: false,
-        //compress: {
-            //drop_debugger: false
-        //}
-    //})
+    new webpack.optimize.UglifyJsPlugin({
+        mangle: false,
+        compress: {
+            drop_debugger: false
+        }
+    })
   ]
 };

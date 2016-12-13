@@ -1,34 +1,36 @@
 define([
     'react',
-    './i18n'
+    '../i18n'
 ], function(React, i18n) {
 
     const { PropTypes } = React;
     const Credentials = React.createClass({
         propTypes: {
-            accessKey: PropTypes.string,
-            secret: PropTypes.string,
             errorMessage: PropTypes.string,
-            onChangeCredentials: PropTypes.func.isRequired,
-            onOpenDirectory: PropTypes.func.isRequired
+            onConnect: PropTypes.func.isRequired
+        },
+
+        getInitialState() {
+            return {
+                accessKey: '', secret: ''
+            }
         },
 
         componentDidMount() {
             // FIXME: remove, just for faster dev testing
             if (localStorage.aws) {
                 const { u:accessKey, p:secret } = JSON.parse(localStorage.aws);
-                this.props.onChangeCredentials({ accessKey, secret })
+                this.setState({ accessKey, secret })
             }
         },
 
         render() {
-            const { accessKey, secret, errorMessage } = this.props;
+            const { loading, errorMessage } = this.props;
+            const { accessKey, secret } = this.state;
+            const valid = Boolean(accessKey.length && secret.length);
+
             return (
                 <div>
-                    <div className="help">
-                        <a target="_blank" href={i18n('help_url')}>{i18n('help')}</a>
-                    </div>
-
                     {errorMessage ? (
                         <div className="alert alert-error">{errorMessage}</div>
                     ) : null}
@@ -41,9 +43,15 @@ define([
                         {i18n('secret')}
                         <input type="password" value={secret} onKeyDown={this.onKeyDown} onChange={this.handleChange('secret')} />
                     </label>
+                    <div className="help">
+                        <a target="_blank" href={i18n('help_url')}>{i18n('help')}</a>
+                    </div>
 
                     <div className="buttons">
-                    <button onClick={this.connect} className="btn btn-primary">{i18n('connect')}</button>
+                    <button
+                        disabled={!valid}
+                        onClick={this.connect}
+                        className={(loading ? "loading " : "") + "btn btn-primary"}>{i18n('connect')}</button>
                     </div>
                 </div>
             );
@@ -56,12 +64,13 @@ define([
 
         handleChange(stateField) {
             return event => {
-                this.props.onChangeCredentials({ [stateField]: event.target.value })
+                this.setState({ [stateField]: event.target.value })
             }
         },
 
-        connect(event) {
-            this.props.onOpenDirectory();
+        connect() {
+            const { accessKey, secret } = this.state;
+            this.props.onConnect({ accessKey, secret });
         }
     });
 

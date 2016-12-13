@@ -39,7 +39,7 @@ public class CloudImportLongRunningProcessQueueItem {
     }
 
     public String getType() {
-        return "com-visallo-ingest-cloud";
+        return "org-visallo-ingest-cloud";
     }
 
     public String getUserId() {

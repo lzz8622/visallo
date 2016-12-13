@@ -7,15 +7,18 @@ define([
 
     const key = 'ingest-cloud-s3';
     const api = {
-        credentials: ({ accessKey, secret}) => ({
-            type: 'INGEST_CLOUD_S3_SET_CREDENTIALS',
-            payload: {
-                accessKey, secret
-            }
-        }),
+        connect: (credentials) => (dispatch, getState) => {
+            dispatch({
+                type: 'INGEST_CLOUD_S3_SET_CREDENTIALS',
+                payload: credentials
+            })
+            dispatch(api.openDirectory())
+        },
 
         openDirectory: (name) => (dispatch, getState) => {
-            const { accessKey, secret, cwd, contentsByDir } = getState()[key]
+            const { credentials, cwd, contentsByDir } = getState()[key]
+            const { accessKey, secret } = credentials;
+
             if (accessKey && secret) {
                 var newDir = cwd;
                 if (name === '..') {

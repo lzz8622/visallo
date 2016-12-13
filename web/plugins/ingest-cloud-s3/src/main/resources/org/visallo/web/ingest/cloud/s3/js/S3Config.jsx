@@ -1,18 +1,18 @@
 define([
     'react',
     './Browser',
-    './Credentials'
+    './CredentialsChooser'
 ], function(
     React,
     Browser,
-    Credentials) {
+    CredentialsChooser) {
 
     const S3Configuration = function(props) {
         const { authenticated } = props;
 
         return authenticated ?
             <Browser {...({onOpenDirectory, onSelectItem, onImport, contentsByDir, cwd} = props)} /> :
-            <Credentials {...({onChangeCredentials, accessKey, secret, errorMessage} = props)} />
+            <CredentialsChooser {...({onConnect, loading, errorMessage, authenticationId} = props)} />
     };
 
     return S3Configuration;

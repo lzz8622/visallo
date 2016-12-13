@@ -9,6 +9,7 @@ define([
 
         propTypes: {
             componentPath: PropTypes.string.isRequired,
+            behavior: PropTypes.object,
             nodeType: PropTypes.string
         },
 
@@ -41,6 +42,10 @@ define([
                 .node(this.refs.node)
                 .path(props.componentPath)
                 .params(props);
+
+            if (this.props.behavior) {
+                this.attacher.behavior(this.props.behavior)
+            }
 
             this.attacher.attach({
                 teardown: true,

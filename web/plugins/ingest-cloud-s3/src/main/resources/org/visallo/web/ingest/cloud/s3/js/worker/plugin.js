@@ -7,8 +7,7 @@ define([
         key: 'ingest-cloud-s3',
         reducer: function(state, { type, payload }) {
             if (!state) return {
-                accessKey: '',
-                secret: '',
+                credentials: {},
                 cwd: [],
                 selected: [],
                 contentsByDir: {}
@@ -17,8 +16,8 @@ define([
             switch (type) {
                 case 'INGEST_CLOUD_S3_SET_CREDENTIALS':
                     return u({
-                        accessKey: payload.accessKey || state.accessKey,
-                        secret: payload.secret || state.secret
+                        credentials: u.constant(payload),
+                        loading: true
                     }, state);
 
                 case 'INGEST_CLOUD_S3_CD':
@@ -30,7 +29,8 @@ define([
                 case 'INGEST_CLOUD_S3_LOAD_CONTENTS':
                     if (payload) {
                         return u({
-                            authenticated: true,
+                            loading: false,
+                            authenticated: !Boolean(payload.errorMessage),
                             errorMessage: payload.errorMessage,
                             contentsByDir: {
                                 [payload.path]: payload.contents
@@ -38,6 +38,7 @@ define([
                         }, state);
                     } else {
                         return u({
+                            loading: false,
                             authenticated: false,
                             errorMessage: 'Server error'
                         }, state)

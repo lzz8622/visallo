@@ -29,12 +29,11 @@ define([
             this.props.onOpenDirectory('..')
         },
         onImport() {
-            const { accessKey, secret, contentsByDir, cwd, selected } = this.props;
+            const { credentials, contentsByDir, cwd, selected } = this.props;
             const fullPath = cwd.join('/')
             const contents = contentsByDir[fullPath];
             const bucket = cwd[0];
             const path = cwd.slice(1).join('/');
-            const credentials = { accessKey, secret };
 
             if (contents) {
                 this.props.onImport({

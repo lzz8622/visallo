@@ -20,6 +20,7 @@ public class AmazonS3WebAppPlugin implements WebAppPlugin {
 
         app.registerJavaScript("/org/visallo/web/ingest/cloud/s3/js/plugin.js", true);
         app.registerCompiledJavaScript("/org/visallo/web/ingest/cloud/s3/dist/Config.js");
+        app.registerCompiledJavaScript("/org/visallo/web/ingest/cloud/s3/dist/BasicAuth.js");
         app.registerCompiledJavaScript("/org/visallo/web/ingest/cloud/s3/dist/actions-impl.js");
 
         app.registerCompiledWebWorkerJavaScript("/org/visallo/web/ingest/cloud/s3/dist/plugin-worker.js");

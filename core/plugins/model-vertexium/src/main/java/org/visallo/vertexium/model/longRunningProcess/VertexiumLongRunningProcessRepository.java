@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import org.json.JSONObject;
 import org.vertexium.*;
 import org.vertexium.util.ConvertingIterable;
+import org.visallo.core.exception.VisalloException;
 import org.visallo.core.model.longRunningProcess.LongRunningProcessProperties;
 import org.visallo.core.model.longRunningProcess.LongRunningProcessRepository;
 import org.visallo.core.model.properties.VisalloProperties;
@@ -182,6 +183,11 @@ public class VertexiumLongRunningProcessRepository extends LongRunningProcessRep
         Authorizations authorizations = getAuthorizations(userRepository.getSystemUser());
         Vertex vertex = this.graph.getVertex(longRunningProcessGraphVertexId, authorizations);
         checkNotNull(vertex, "Could not find long running process vertex: " + longRunningProcessGraphVertexId);
+
+        JSONObject object = LongRunningProcessProperties.QUEUE_ITEM_JSON_PROPERTY.getPropertyValue(vertex);
+        if (object.optBoolean("canceled", false)) {
+            throw new VisalloException("Unable to update progress of cancelled process");
+        }
 
         JSONObject json = LongRunningProcessProperties.QUEUE_ITEM_JSON_PROPERTY.getPropertyValue(vertex);
         json.put("progress", progressPercent);

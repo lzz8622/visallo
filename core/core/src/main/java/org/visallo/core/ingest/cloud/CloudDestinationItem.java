@@ -6,5 +6,6 @@ public interface CloudDestinationItem {
 
     InputStream getInputStream();
     String getName();
+    Long getSize();
 
 }

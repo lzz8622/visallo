@@ -48,7 +48,7 @@ public class AmazonS3CloudDestination implements CloudDestination {
         AmazonS3CloudDestinationItem(AmazonS3 s3, String bucket, String key) {
             this.s3 = s3;
             this.bucket = bucket;
-            this.key = key;
+            this.key = key.replaceAll("^\\/", "");
         }
 
         @Override
@@ -59,12 +59,18 @@ public class AmazonS3CloudDestination implements CloudDestination {
         @Override
         public String getName() {
             int last = key.lastIndexOf("/");
+            String name = key;
 
             if (last >= 0) {
-                key = key.substring(last + 1);
+                name = name.substring(last + 1);
             }
 
-            return key;
+            return name;
+        }
+
+        @Override
+        public Long getSize() {
+            return getObject().getObjectMetadata().getContentLength();
         }
 
         private synchronized S3Object getObject() {

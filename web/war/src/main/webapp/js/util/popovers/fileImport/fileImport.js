@@ -129,24 +129,25 @@ define([
             var self = this,
                 $li = $(event.target).closest('li'),
                 path = $li.attr('data-path'),
-                identifier = $li.attr('data-identifier');
+                identifier = $li.attr('data-identifier'),
+                attacher = Attacher()
+                    .node(this.popover.find('.import-cloud-form').empty())
+                    .path(path)
+                    .behavior({
+                        onImport: function(attacher, importConfig) {
+                            self.dataRequest('vertex', 'cloudImport', identifier, importConfig)
+                                .then(() => {
+                                    self.trigger('showActivityDisplay');
+                                })
+                            self.teardown();
+                        }
+                    })
+                    .legacyMapping({
+                        onImport: 'cloudImported'
+                    })
 
-            Attacher()
-                .node(this.popover.find('.import-cloud-form').empty())
-                .path(path)
-                .behavior({
-                    onImport: function(attacher, importConfig) {
-                        console.log(importConfig)
-                        self.dataRequest('vertex', 'cloudImport', identifier, importConfig)
-                            .then(resp => {
-                                console.log(resp)
-                            })
-                    }
-                })
-                .legacyMapping({
-                    onImport: 'cloudImported'
-                })
-                .attach();
+            self.before('teardown', () => attacher.teardown())
+            attacher.attach();
         };
 
         this.onFileChange = function(event) {
