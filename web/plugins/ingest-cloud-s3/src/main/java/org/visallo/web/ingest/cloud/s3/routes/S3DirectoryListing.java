@@ -1,31 +1,39 @@
 package org.visallo.web.ingest.cloud.s3.routes;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
+import com.google.inject.Inject;
 import com.v5analytics.webster.ParameterizedHandler;
 import com.v5analytics.webster.annotations.Handle;
 import com.v5analytics.webster.annotations.Optional;
 import com.v5analytics.webster.annotations.Required;
+import org.json.JSONObject;
+import org.visallo.core.bootstrap.InjectHelper;
 import org.visallo.core.user.User;
+import org.visallo.web.ingest.cloud.s3.AmazonS3ClientFactory;
 import org.visallo.web.ingest.cloud.s3.ClientApiBuckets;
 
 import java.util.stream.Collectors;
 
-public class S3Buckets implements ParameterizedHandler {
+public class S3DirectoryListing implements ParameterizedHandler {
     private static String Delimiter = "/";
+    private final AmazonS3ClientFactory amazonS3ClientFactory;
+
+    @Inject
+    public S3DirectoryListing(AmazonS3ClientFactory amazonS3ClientFactory) {
+        this.amazonS3ClientFactory = amazonS3ClientFactory;
+    }
 
     @Handle
     public ClientApiBuckets handle(
             User user,
-            @Required(name = "accessKey") String accessKey,
-            @Required(name = "secret") String secret,
+            @Required(name = "providerClass") String providerClass,
+            @Optional(name = "credentials") String credentials,
             @Optional(name = "path") String path
     ) throws Exception {
-        AmazonS3 s3 = new AmazonS3Client(new BasicAWSCredentials(accessKey, secret));
+        AmazonS3 s3 = amazonS3ClientFactory.getClient(providerClass, credentials);
 
         if (path == null || path.equals("/") || path.isEmpty()) {
             return getBuckets(s3);

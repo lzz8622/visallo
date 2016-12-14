@@ -29,7 +29,7 @@ define([
             this.props.onOpenDirectory('..')
         },
         onImport() {
-            const { credentials, contentsByDir, cwd, selected } = this.props;
+            const { auth, contentsByDir, cwd, selected } = this.props;
             const fullPath = cwd.join('/')
             const contents = contentsByDir[fullPath];
             const bucket = cwd[0];
@@ -37,7 +37,7 @@ define([
 
             if (contents) {
                 this.props.onImport({
-                    credentials,
+                    auth,
                     bucket,
                     paths: selected.map(s => `${path}/${s}`)
                 });

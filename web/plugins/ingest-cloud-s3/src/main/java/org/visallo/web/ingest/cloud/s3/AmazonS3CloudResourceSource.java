@@ -1,51 +1,56 @@
 package org.visallo.web.ingest.cloud.s3;
 
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.visallo.core.ingest.cloud.CloudDestination;
-import org.visallo.core.ingest.cloud.CloudDestinationItem;
+import org.visallo.core.bootstrap.InjectHelper;
+import org.visallo.core.ingest.cloud.CloudResourceItem;
+import org.visallo.core.ingest.cloud.CloudResourceSource;
 import org.visallo.core.util.JSONUtil;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public class AmazonS3CloudDestination implements CloudDestination {
+public class AmazonS3CloudResourceSource implements CloudResourceSource {
+    private final AmazonS3ClientFactory amazonS3ClientFactory;
+
+    @Inject
+    public AmazonS3CloudResourceSource(AmazonS3ClientFactory amazonS3ClientFactory) {
+        this.amazonS3ClientFactory = amazonS3ClientFactory;
+    }
 
     @Override
-    public Collection<CloudDestinationItem> getItems(JSONObject configuration) {
-        JSONObject credentials = configuration.getJSONObject("credentials");
-        String accessKey = credentials.getString("accessKey");
-        String secret = credentials.getString("secret");
-        AmazonS3 s3 = new AmazonS3Client(new BasicAWSCredentials(accessKey, secret));
+    public Collection<CloudResourceItem> getItems(JSONObject configuration) {
+        AmazonS3 s3 = getAmazonClient(configuration);
 
         String bucket = configuration.getString("bucket");
         JSONArray paths = configuration.getJSONArray("paths");
 
         return JSONUtil.toList(paths)
                 .stream()
-                .map(key -> new AmazonS3CloudDestinationItem(s3, bucket, (String) key))
+                .map(key -> new AmazonS3CloudResourceItem(s3, bucket, (String) key))
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public void putFiles(OutputStream outputStream) {
+    private AmazonS3 getAmazonClient(JSONObject configuration) {
+        JSONObject auth = configuration.getJSONObject("auth");
+        String providerClass = auth.getString("providerClass");
+        JSONObject credentials = auth.getJSONObject("credentials");
 
+        return amazonS3ClientFactory.getClient(providerClass, credentials);
     }
 
-    static class AmazonS3CloudDestinationItem implements CloudDestinationItem {
+    static class AmazonS3CloudResourceItem implements CloudResourceItem {
         private S3Object object;
         private AmazonS3 s3;
         private String bucket;
         private String key;
 
-        AmazonS3CloudDestinationItem(AmazonS3 s3, String bucket, String key) {
+        AmazonS3CloudResourceItem(AmazonS3 s3, String bucket, String key) {
             this.s3 = s3;
             this.bucket = bucket;
             this.key = key.replaceAll("^\\/", "");

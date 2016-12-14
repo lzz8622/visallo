@@ -198,9 +198,9 @@ define([
             })).tap(storeHelper.updateElement);
         },
 
-        cloudImport: function(cloudDestination, cloudConfiguration) {
+        cloudImport: function(cloudResource, cloudConfiguration) {
             return ajax('POST', '/vertex/cloudImport', {
-                cloudDestination, cloudConfiguration: JSON.stringify(cloudConfiguration)
+                cloudResource, cloudConfiguration: JSON.stringify(cloudConfiguration)
             })
         },
 

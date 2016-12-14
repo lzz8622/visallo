@@ -28,7 +28,7 @@ define([
         },
 
         (dispatch, props) => ({
-            onConnect(credentials) { dispatch(s3Actions.connect(credentials)) },
+            onConnect(providerClass, credentials) { dispatch(s3Actions.connect(providerClass, credentials)) },
             onOpenDirectory(name) { dispatch(s3Actions.openDirectory(name))},
             onSelectItem(name) { dispatch(s3Actions.selectItem(name))}
         })

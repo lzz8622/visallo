@@ -7,7 +7,7 @@ define([
         key: 'ingest-cloud-s3',
         reducer: function(state, { type, payload }) {
             if (!state) return {
-                credentials: {},
+                auth: {},
                 cwd: [],
                 selected: [],
                 contentsByDir: {}
@@ -16,7 +16,7 @@ define([
             switch (type) {
                 case 'INGEST_CLOUD_S3_SET_CREDENTIALS':
                     return u({
-                        credentials: u.constant(payload),
+                        auth: u.constant(payload),
                         loading: true
                     }, state);
 

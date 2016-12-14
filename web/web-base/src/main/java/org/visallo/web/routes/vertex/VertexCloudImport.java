@@ -80,7 +80,7 @@ public class VertexCloudImport implements ParameterizedHandler {
 
     @Handle
     public ClientApiLongRunningProcessSubmitResponse handle(
-            @Required(name = "cloudDestination") String cloudDestination,
+            @Required(name = "cloudResource") String cloudResource,
             @Required(name = "cloudConfiguration") String cloudConfiguration,
             @Optional(name = "publish", defaultValue = "false") boolean shouldPublish,
             @Optional(name = "findExistingByFileHash", defaultValue = "true") boolean findExistingByFileHash,
@@ -93,7 +93,7 @@ public class VertexCloudImport implements ParameterizedHandler {
         this.authorizations = authorizations;
 
         CloudImportLongRunningProcessQueueItem item = new CloudImportLongRunningProcessQueueItem(
-            cloudDestination,
+            cloudResource,
             cloudConfiguration,
             user.getUserId(),
             workspaceId,

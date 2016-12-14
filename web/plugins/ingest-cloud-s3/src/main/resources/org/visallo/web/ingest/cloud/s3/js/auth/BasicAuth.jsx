@@ -4,7 +4,7 @@ define([
 ], function(React, i18n) {
 
     const { PropTypes } = React;
-    const Credentials = React.createClass({
+    const BasicAuth = React.createClass({
         propTypes: {
             errorMessage: PropTypes.string,
             onConnect: PropTypes.func.isRequired
@@ -43,9 +43,8 @@ define([
                         {i18n('secret')}
                         <input type="password" value={secret} onKeyDown={this.onKeyDown} onChange={this.handleChange('secret')} />
                     </label>
-                    <div className="help">
-                        <a target="_blank" href={i18n('help_url')}>{i18n('help')}</a>
-                    </div>
+
+                    <div className="help"><a target="_blank" href={i18n('basic_auth.help_url')}>{i18n('help')}</a></div>
 
                     <div className="buttons">
                     <button
@@ -74,6 +73,6 @@ define([
         }
     });
 
-    return Credentials;
+    return BasicAuth;
 });
 

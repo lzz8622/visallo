@@ -59,7 +59,7 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
     @Override
     protected void processInternal(JSONObject longRunningProcessQueueItem) {
         CloudImportLongRunningProcessQueueItem item = ClientApiConverter.toClientApi(longRunningProcessQueueItem, CloudImportLongRunningProcessQueueItem.class);
-        CloudDestination destination = getDestination(item.getDestination());
+        CloudResourceSource destination = getDestination(item.getDestination());
 
         if (destination == null) {
             longRunningProcessQueueItem.put("error", "No cloud destination configured for :" + item.getDestination());
@@ -72,9 +72,9 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
         }
     }
 
-    private CloudDestination getDestination(String className) {
-        Collection<CloudDestination> destinations = InjectHelper.getInjectedServices(CloudDestination.class, configuration);
-        for (CloudDestination destination : destinations) {
+    private CloudResourceSource getDestination(String className) {
+        Collection<CloudResourceSource> destinations = InjectHelper.getInjectedServices(CloudResourceSource.class, configuration);
+        for (CloudResourceSource destination : destinations) {
             if (destination.getClass().getName().equals(className)) {
                 return destination;
             }
@@ -82,7 +82,7 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
         return null;
     }
 
-    private void download(CloudDestination destination, CloudImportLongRunningProcessQueueItem item, JSONObject itemJson) throws Exception {
+    private void download(CloudResourceSource destination, CloudImportLongRunningProcessQueueItem item, JSONObject itemJson) throws Exception {
         String id = itemJson.getString("id");
         Authorizations authorizations = graph.createAuthorizations(item.getAuthorizations());
         String visibilitySource = "";
@@ -96,10 +96,10 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
 
         File tempDir = Files.createTempDir();
         try {
-            Collection<CloudDestinationItem> items = destination.getItems(new JSONObject(item.getConfiguration()));
+            Collection<CloudResourceItem> items = destination.getItems(new JSONObject(item.getConfiguration()));
             Long allItemsSize = 0L;
-            for (CloudDestinationItem cloudDestinationItem : items) {
-                Long size = cloudDestinationItem.getSize();
+            for (CloudResourceItem cloudResourceItem : items) {
+                Long size = cloudResourceItem.getSize();
                 if (size != null) {
                     allItemsSize += size;
                 }
@@ -108,12 +108,12 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
 
             long noSizeProgress = 0;
             long cumulativeSize = 0;
-            for (CloudDestinationItem cloudDestinationItem : items) {
-                String fileName = cloudDestinationItem.getName();
+            for (CloudResourceItem cloudResourceItem : items) {
+                String fileName = cloudResourceItem.getName();
                 if (fileName == null) throw new VisalloException("Cloud destination item name must not be null");
-                File file = new File(tempDir, cloudDestinationItem.getName());
+                File file = new File(tempDir, cloudResourceItem.getName());
 
-                try (InputStream inputStream = cloudDestinationItem.getInputStream()) {
+                try (InputStream inputStream = cloudResourceItem.getInputStream()) {
                     if (inputStream == null) {
                         throw new VisalloException("Cloud destination input stream must not be null");
                     }
@@ -135,7 +135,7 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
                         );
                     }
                     if (allItemsSize > 0) {
-                        cumulativeSize += cloudDestinationItem.getSize();
+                        cumulativeSize += cloudResourceItem.getSize();
                     }
                 }
             }

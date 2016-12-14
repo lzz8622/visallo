@@ -2,7 +2,7 @@ package org.visallo.core.ingest.cloud;
 
 import java.io.InputStream;
 
-public interface CloudDestinationItem {
+public interface CloudResourceItem {
 
     InputStream getInputStream();
     String getName();

@@ -15,6 +15,7 @@ module.exports = {
   entry: {
     Config: './js/S3Container.jsx',
     BasicAuth: './js/auth/BasicAuth.jsx',
+    SessionAuth: './js/auth/SessionAuth.jsx',
     'actions-impl': './js/worker/actions-impl.js',
     'plugin-worker': './js/worker/plugin.js'
   },

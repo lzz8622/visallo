@@ -22,7 +22,13 @@ define([
         id: 'basic_auth',
         displayName: i18n('basic_auth'),
         componentPath: 'org/visallo/web/ingest/cloud/s3/dist/BasicAuth',
-        providerClass: 'org.visallo.web.ingest.cloud.s3.BasicAuthProvider'
+        providerClass: 'org.visallo.web.ingest.cloud.s3.authentication.BasicAuthProvider'
+    });
+    RegistryInjectorHOC.registry.registerExtension(AUTH_EXTENSION_POINT, {
+        id: 'session_auth',
+        displayName: i18n('session_auth'),
+        componentPath: 'org/visallo/web/ingest/cloud/s3/dist/SessionAuth',
+        providerClass: 'org.visallo.web.ingest.cloud.s3.authentication.SessionAuthProvider'
     });
 
     const PropTypes = React.PropTypes;
@@ -35,48 +41,50 @@ define([
             loading: PropTypes.bool
         },
 
-        getDefaultProps() {
-            return { authenticationId: DEFAULT_AUTH_ID }
-        },
-
         getInitialState() {
-            return { componentPath: '' }
+            return {
+                selected: this.props.authenticationId || DEFAULT_AUTH_ID,
+                hideError: false
+            }
         },
 
         render() {
-            const { registry } = this.props;
+            const { registry, errorMessage, loading } = this.props;
+            const { selected, hideError } = this.state;
             const types = _.sortBy(registry[AUTH_EXTENSION_POINT], r => r.displayName.toLowerCase());
-            const componentPath = this.getComponentPath(types);
-            const behavior = {
-                onConnect: (attacher, credentials) => this.props.onConnect(credentials)
-            }
+            const selectedType = _.findWhere(types, { id: selected });
+
+            console.log('in render', this.props, loading, errorMessage)
 
             return (
                 <div className="import-s3-credentials">
-                    <select defaultValue={DEFAULT_AUTH_ID} onChange={this.onChange}>
+                    <select defaultValue={selected} onChange={this.onChange}>
                         {types.length === 1 ? null : (
                             <option value=''>{i18n(types.length ? 'credentials' : 'nocredentials')}</option>
                         )}
-                        {types.map(r => (<option key={r.id} value={r.componentPath}>{r.displayName}</option>)) }
+                        {types.map(r => (<option key={r.id} value={r.id}>{r.displayName}</option>)) }
                     </select>
-                    {componentPath ? (<Attacher behavior={behavior} loading={loading} componentPath={componentPath} />) : null}
+
+                    {selectedType ? (
+                        <Attacher behavior={{onConnect: _.partial(this.onConnect, _, selectedType.providerClass)}}
+                                  loading={loading}
+                                  errorMessage={hideError ? null : errorMessage}
+                                  componentPath={selectedType.componentPath} />
+                    ) : null}
                 </div>
             );
         },
 
         onChange(event) {
-            const componentPath = event.target.value;
-            this.setState({ componentPath })
+            const id = event.target.value;
+            this.setState({ selected: id, hideError: true })
         },
 
-        getComponentPath(types) {
-            const { componentPath } = this.state;
-            if (!componentPath) {
-                const selected = _.findWhere(types, t => t.id === DEFAULT_AUTH_ID);
-                if (selected) return selected.componentPath;
-                if (types.length) return types[0].componentPath;
-            }
+        onConnect(attacher, providerClass, credentials) {
+            this.props.onConnect(providerClass, credentials)
+            this.setState({ hideError: false })
         }
+
     });
 
     return RegistryInjectorHOC(CredentialsChooser, [AUTH_EXTENSION_POINT]);
