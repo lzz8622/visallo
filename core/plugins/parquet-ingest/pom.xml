@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>visallo-web-plugin-base</artifactId>
+        <groupId>org.visallo</groupId>
+        <version>3.1-SNAPSHOT</version>
+        <relativePath>../../../web/web-plugin-base</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <properties>
+        <parquet.version>1.9.0</parquet.version>
+    </properties>
+
+    <artifactId>visallo-parquet-ingest</artifactId>
+    <name>Visallo: Core: Plugin: Parquet Import</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.visallo</groupId>
+            <artifactId>visallo-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.visallo</groupId>
+            <artifactId>visallo-ingest-ontology-mapping</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- for parquet -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-hadoop</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-tools</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.visallo</groupId>
+            <artifactId>visallo-web</artifactId>
+            <version>${v5.visallo.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>
