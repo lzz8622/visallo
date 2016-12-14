@@ -96,10 +96,10 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
 
         File tempDir = Files.createTempDir();
         try {
-            Collection<CloudResourceItem> items = destination.getItems(new JSONObject(item.getConfiguration()));
+            Collection<CloudResourceSourceItem> items = destination.getItems(new JSONObject(item.getConfiguration()));
             Long allItemsSize = 0L;
-            for (CloudResourceItem cloudResourceItem : items) {
-                Long size = cloudResourceItem.getSize();
+            for (CloudResourceSourceItem cloudResourceSourceItem : items) {
+                Long size = cloudResourceSourceItem.getSize();
                 if (size != null) {
                     allItemsSize += size;
                 }
@@ -108,12 +108,12 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
 
             long noSizeProgress = 0;
             long cumulativeSize = 0;
-            for (CloudResourceItem cloudResourceItem : items) {
-                String fileName = cloudResourceItem.getName();
+            for (CloudResourceSourceItem cloudResourceSourceItem : items) {
+                String fileName = cloudResourceSourceItem.getName();
                 if (fileName == null) throw new VisalloException("Cloud destination item name must not be null");
-                File file = new File(tempDir, cloudResourceItem.getName());
+                File file = new File(tempDir, cloudResourceSourceItem.getName());
 
-                try (InputStream inputStream = cloudResourceItem.getInputStream()) {
+                try (InputStream inputStream = cloudResourceSourceItem.getInputStream()) {
                     if (inputStream == null) {
                         throw new VisalloException("Cloud destination input stream must not be null");
                     }
@@ -135,7 +135,7 @@ public class CloudImportLongRunningProcessWorker extends LongRunningProcessWorke
                         );
                     }
                     if (allItemsSize > 0) {
-                        cumulativeSize += cloudResourceItem.getSize();
+                        cumulativeSize += cloudResourceSourceItem.getSize();
                     }
                 }
             }

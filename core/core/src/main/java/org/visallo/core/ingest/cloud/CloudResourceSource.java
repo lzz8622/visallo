@@ -6,6 +6,6 @@ import java.util.Collection;
 
 public interface CloudResourceSource {
 
-    public Collection<CloudResourceItem> getItems(JSONObject configuration);
+    public Collection<CloudResourceSourceItem> getItems(JSONObject configuration);
 
 }

@@ -6,8 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.visallo.core.bootstrap.InjectHelper;
-import org.visallo.core.ingest.cloud.CloudResourceItem;
+import org.visallo.core.ingest.cloud.CloudResourceSourceItem;
 import org.visallo.core.ingest.cloud.CloudResourceSource;
 import org.visallo.core.util.JSONUtil;
 
@@ -24,7 +23,7 @@ public class AmazonS3CloudResourceSource implements CloudResourceSource {
     }
 
     @Override
-    public Collection<CloudResourceItem> getItems(JSONObject configuration) {
+    public Collection<CloudResourceSourceItem> getItems(JSONObject configuration) {
         AmazonS3 s3 = getAmazonClient(configuration);
 
         String bucket = configuration.getString("bucket");
@@ -32,7 +31,7 @@ public class AmazonS3CloudResourceSource implements CloudResourceSource {
 
         return JSONUtil.toList(paths)
                 .stream()
-                .map(key -> new AmazonS3CloudResourceItem(s3, bucket, (String) key))
+                .map(key -> new AmazonS3CloudResourceSourceItem(s3, bucket, (String) key))
                 .collect(Collectors.toList());
     }
 
@@ -44,13 +43,13 @@ public class AmazonS3CloudResourceSource implements CloudResourceSource {
         return amazonS3ClientFactory.getClient(providerClass, credentials);
     }
 
-    static class AmazonS3CloudResourceItem implements CloudResourceItem {
+    static class AmazonS3CloudResourceSourceItem implements CloudResourceSourceItem {
         private S3Object object;
         private AmazonS3 s3;
         private String bucket;
         private String key;
 
-        AmazonS3CloudResourceItem(AmazonS3 s3, String bucket, String key) {
+        AmazonS3CloudResourceSourceItem(AmazonS3 s3, String bucket, String key) {
             this.s3 = s3;
             this.bucket = bucket;
             this.key = key.replaceAll("^\\/", "");
