@@ -16,18 +16,9 @@ define([
             }
         },
 
-        componentWillReceiveProps(nextProps) {
-            console.log('new props => ', nextProps)
-        },
-
-        componentWillUnmount() {
-            console.log('unmounted')
-        },
-
         componentDidMount() {
-            console.log('mounted')
             // FIXME: remove, just for faster dev testing
-            if (localStorage.aws) {
+            if (localStorage.awsSts) {
                 const { u:accessKey, p:secret, t:token } = JSON.parse(localStorage.awsSts);
                 this.setState({ accessKey, secret, token })
             }
@@ -37,8 +28,6 @@ define([
             const { loading, errorMessage } = this.props;
             const { accessKey, secret, token } = this.state;
             const valid = Boolean(accessKey.length && secret.length && token.length);
-
-            console.log('render session', loading, errorMessage)
 
             return (
                 <div>

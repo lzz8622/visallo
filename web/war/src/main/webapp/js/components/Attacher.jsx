@@ -46,8 +46,6 @@ define([
         reattach(props) {
             const { componentPath, legacyMapping, behavior, nodeType, ...rest } = props;
 
-            console.log(props, rest)
-
             this.attacher = attacher({ preferDirectReactChildren: true })
                 .path(componentPath)
                 .params(rest);

@@ -54,8 +54,6 @@ define([
             const types = _.sortBy(registry[AUTH_EXTENSION_POINT], r => r.displayName.toLowerCase());
             const selectedType = _.findWhere(types, { id: selected });
 
-            console.log('in render', this.props, loading, errorMessage)
-
             return (
                 <div className="import-s3-credentials">
                     <select defaultValue={selected} onChange={this.onChange}>
