@@ -18,5 +18,7 @@
         <module>model-vertexium</module>
         <module>model-vertexium-elasticsearch</module>
         <module>model-vertexium-inmemory</module>
+        <module>parquet-ingest</module>
+        <module>ingest-ontology-mapping</module>
     </modules>
 </project>
