@@ -41,7 +41,10 @@ public class AmazonS3ClientFactory {
         // TODO: document these
         clientConfiguration.setProxyDomain(getConfig("proxy.domain"));
         clientConfiguration.setProxyHost(getConfig("proxy.host"));
-        clientConfiguration.setProxyPort(getConfigInt("proxy.port"));
+        String port = getConfig("proxy.port");
+        if (port != null) {
+            clientConfiguration.setProxyPort(Integer.parseInt(port));
+        }
         clientConfiguration.setProxyUsername(getConfig("proxy.username"));
         clientConfiguration.setProxyPassword(getConfig("proxy.password"));
         clientConfiguration.setNonProxyHosts(getConfig("proxy.nonProxyHosts"));
@@ -60,12 +63,8 @@ public class AmazonS3ClientFactory {
         throw new VisalloException("No AuthProvider found for: " + className);
     }
 
-    private Integer getConfigInt(String suffix) {
-        return configuration.getInt(PREFIX + "proxy.domain", null);
-    }
-
     private String getConfig(String suffix) {
-        return configuration.get(PREFIX + "proxy.domain", null);
+        return configuration.get(PREFIX + suffix, null);
     }
 
 }
