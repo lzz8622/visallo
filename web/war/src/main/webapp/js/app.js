@@ -147,6 +147,7 @@ define([
             this.on(document, 'logout', this.logout);
             this.on(document, 'sessionExpiration', this.onSessionExpiration);
             this.on(document, 'showVertexContextMenu', this.onShowVertexContextMenu);
+            this.on(document, 'showEdgeContextMenu', this.onShowEdgeContextMenu);
             this.on(document, 'warnAboutContextMenuDisabled', this.onWarnAboutContextMenuDisabled);
             this.on(document, 'genericPaste', this.onGenericPaste);
             this.on(document, 'toggleTimeline', this.onToggleTimeline);
@@ -318,7 +319,6 @@ define([
 
         this.onOpenFullscreen = function(event, data) {
             var self = this,
-                req,
                 F;
 
             if (!data) return;
@@ -326,12 +326,16 @@ define([
             Promise.require('util/vertex/formatters')
                 .then(function(_F) {
                     F = _F;
-                    return F.vertex.getVertexIdsFromDataEventOrCurrentSelection(data, { async: true });
+                    return F.vertex.getVertexAndEdgeIdsFromDataEventOrCurrentSelection(data, { async: true });
                 })
                 .then(function(elementIds) {
-                    return self.dataRequest('vertex', 'store', { vertexIds: elementIds })
+                    return Promise.all([
+                        self.dataRequest('vertex', 'store', { vertexIds: elementIds.vertexIds }),
+                        self.dataRequest('edge', 'store', { edgeIds: elementIds.edgeIds })
+                    ]);
                 })
-                .then(function(elements) {
+                .spread(function(vertices, edges) {
+                    var elements = vertices.concat(edges);
                     var url = F.vertexUrl.url(
                             _.isArray(elements) ? elements : [elements],
                             visalloData.currentWorkspaceId
@@ -473,11 +477,11 @@ define([
             }
         };
 
-        this.onShowVertexContextMenu = function(event, data) {
+        this.onShowEdgeContextMenu = this.onShowVertexContextMenu = function(event, data) {
             data.element = event.target;
 
             VertexMenu.teardownAll();
-            if (data && data.vertexId) {
+            if (data && (data.vertexId || data.edgeIds)) {
                 VertexMenu.attachTo(document.body, data);
             }
         };

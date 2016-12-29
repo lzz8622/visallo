@@ -270,6 +270,9 @@ define([
                 },
                 onVertexMenu: (element, vertexId, position) => {
                     $(element).trigger('showVertexContextMenu', { vertexId, position });
+                },
+                onEdgeMenu: (element, edgeIds, position) => {
+                    $(element).trigger('showEdgeContextMenu', { edgeIds, position });
                 }
             }
         },
