@@ -58,6 +58,8 @@ define([
         tapend: 'onTapEnd',
         taphold: 'onTapHold',
         cxttap: 'onContextTap',
+        cxttapstart: 'onCxtTapStart',
+        cxttapend: 'onCxtTapEnd',
         pan: 'onPan',
         zoom: 'onZoom',
         fit: 'onFit',
